@@ -21,9 +21,13 @@ module Grape::Pagination
 
     def paginate
       header LINK_HEADER, LinkHeader.new(request.url, page_params).to_rfc5988
-      collection.paginate(page_params)
+      if collection.respond_to? :paginate
+        collection.paginate(page_params)
+      else
+        collection.page(page_params[:page]).per(page_params[:per_page])
+      end
     end
-  
+
   private
 
     def_delegators :endpoint, :header, :params, :request
